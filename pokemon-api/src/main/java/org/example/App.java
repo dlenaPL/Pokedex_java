@@ -30,6 +30,7 @@ public class App implements Runnable {
 //        BoxLayout leftBoxLayoutManager = new BoxLayout(leftPanel, BoxLayout.Y_AXIS);
 //        leftPanel.setLayout(leftBoxLayoutManager);
         // wez ten label z nazwa pokemona i zrob go oddzielnie
+        //co tam
 
 
         String path = pokemons.get(0).getPokeImageSrc();
