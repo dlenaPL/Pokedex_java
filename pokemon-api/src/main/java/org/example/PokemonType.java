@@ -20,7 +20,9 @@ public enum PokemonType {
     Steel("#B7B7CE"),
     Fairy("#D685AD");
 
-    PokemonType(String hasColor) {
+    public final String label;
 
+    PokemonType(String label) {
+        this.label = label;
     }
 }
