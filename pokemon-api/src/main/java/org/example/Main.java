@@ -3,12 +3,14 @@ package org.example;
 
 import com.google.gson.*;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.*;
 
 
@@ -16,12 +18,9 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException, URISyntaxException {
 
-        //obrazki pokemonow https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/132.png
-        //https://pokeapi.co/api/v2/pokemon/{PokedexNumber}
-        //flavor text https://pokeapi.co/api/v2/pokemon-species/1/
         List<Pokemon> pokemons = new ArrayList<>();
 
-        for(int i = 1; i <= 2; ++i) {
+        for(int i = 1; i <= 10; ++i) {
             String number = String.valueOf(i);
             String uri = String.format("https://pokeapi.co/api/v2/pokemon/%s/", number);
 
@@ -89,12 +88,6 @@ public class Main {
 
             System.out.println("=================== setting up img =======================================");
 
-//svg
-//            System.out.println(obj.get("sprites").getAsJsonObject().get("other").getAsJsonObject().get("dream_world").getAsJsonObject().get("front_default"));
-//png
-//            System.out.println(obj.get("sprites").getAsJsonObject().get("front_default"));
-
-
             String imgString = String.valueOf(obj.get("sprites").getAsJsonObject().get("front_default"));
             tempPokemon.setPokeImageSrc(imgString.replace("\"", ""));
 
@@ -123,11 +116,24 @@ public class Main {
             pokemons.add(tempPokemon);
         }
 
-        for (Pokemon p : pokemons){
-            System.out.println(p);
+
+        System.out.println("pokemons length: " + pokemons.size());
+        Gson gson = new Gson();
+
+        try {
+            // Konwersja ArrayListy na JSON w postaci Stringa
+            String json = gson.toJson(pokemons);
+
+            // Zapis JSONa do pliku
+            FileWriter fileWriter = new FileWriter("pokemons.json");
+            fileWriter.write(json);
+            fileWriter.close();
+
+            System.out.println("Pomyślnie zapisano JSON do pliku output.json");
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-
         App pokedex = new App(pokemons);
         pokedex.run();
     }
