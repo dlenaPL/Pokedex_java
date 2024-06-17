@@ -9,8 +9,6 @@ import java.util.List;
 @Data
 public class Pokemon {
 
-
-
         private String name;
         private Integer hp;
         private Integer attack;

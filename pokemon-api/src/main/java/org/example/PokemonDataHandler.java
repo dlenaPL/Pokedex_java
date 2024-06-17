@@ -36,45 +36,42 @@ public class PokemonDataHandler {
         }
     }
 
-    public List<Pokemon> getPokemons() {
+    public List<Pokemon> getAllPokemons() {
+        System.out.println("getAllPokemons Command from DataHandler");
         return pokemons;
     }
 
-//    public String getAllPokemons() {
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        try {
-//            return objectMapper.writeValueAsString(pokemons);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return "ERROR";
-//        }
-//    }
-//
-//    public String searchPokemon(String name) {
-//        List<Pokemon> result = pokemons.stream()
-//                .filter(p -> p.getName().equalsIgnoreCase(name))
-//                .collect(Collectors.toList());
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        try {
-//            return objectMapper.writeValueAsString(result);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return "ERROR";
-//        }
-//    }
-//
-//    public String filterByType(String type) {
-//        List<Pokemon> result = pokemons.stream()
-//                .filter(p -> p.getType().equalsIgnoreCase(type))
-//                .collect(Collectors.toList());
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        try {
-//            return objectMapper.writeValueAsString(result);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return "ERROR";
-//        }
-//    }
+    public String searchPokemonByName(String nameFragment) {
+        List<Pokemon> matchingPokemons = pokemons.stream()
+                .filter(p -> p.getName().toLowerCase().contains(nameFragment.toLowerCase()))
+                .toList();
+
+        if (matchingPokemons.isEmpty()) {
+            return "Nie znaleziono Pokemonów o nazwie zawierającej: " + nameFragment;
+        }
+
+        return matchingPokemons.toString();
+    }
+
+    public String searchPokemonByTypeName(String typeName) {
+        PokemonType type;
+        try {
+            type = PokemonType.fromName(typeName);
+            System.out.println("type z funkcji: " + type);
+        } catch (IllegalArgumentException e) {
+            return "Nieznany typ: " + typeName;
+        }
+
+        List<Pokemon> matchingPokemons = pokemons.stream()
+                .filter(p -> p.getTypes().contains(type))
+                .toList();
+
+        if (matchingPokemons.isEmpty()) {
+            return "Nie znaleziono Pokemonów o typie: " + typeName;
+        }
+
+        return matchingPokemons.toString();
+    }
 //
 //    public String addPokemon(Pokemon pokemon) {
 //        pokemons.add(pokemon);

@@ -25,4 +25,13 @@ public enum PokemonType {
     PokemonType(String label) {
         this.label = label;
     }
+
+    public static PokemonType fromName(String name) {
+        for (PokemonType type : PokemonType.values()) {
+            if (type.name().equalsIgnoreCase(name)) {
+                return type;
+            }
+        }
+        throw new IllegalArgumentException("Nieznany typ: " + name);
+    }
 }

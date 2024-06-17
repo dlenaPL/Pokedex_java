@@ -39,9 +39,13 @@ public class PokedexClientHandler implements Runnable {
                 if (request.equalsIgnoreCase("GET_ALL")) {
                     handleGetAll(out);
 
+                } else if (request.startsWith("SEARCH_TYPE_NAME")) {
+                    handleSearchByTypeName(request, out);
+
                     // Obsługa komendy SEARCH <name>
                 } else if (request.startsWith("SEARCH")) {
-                    handleSearch(request, out);
+                    handleSearchByName(request, out);
+
 
                     // Obsługa komendy EXIT
                 } else if (request.equalsIgnoreCase("EXIT")) {
@@ -70,19 +74,34 @@ public class PokedexClientHandler implements Runnable {
 
     // Metoda do obsługi komendy GET_ALL
     private void handleGetAll(PrintWriter out) {
-        String allPokemonJson = dataHandler.getAllPokemonAsJson();
-        out.println(allPokemonJson);
+        String allPokemons = dataHandler.getAllPokemons().toString();
+        out.println(allPokemons);
     }
 
     // Metoda do obsługi komendy SEARCH <name>
-    private void handleSearch(String request, PrintWriter out) {
+    private void handleSearchByName(String request, PrintWriter out) {
         String[] tokens = request.split("\\s+", 2); // Dzieli komendę na części
         if (tokens.length == 2) {
-            String name = tokens[1].trim();
-            String pokemonJson = dataHandler.searchPokemonByNameAsJson(name);
-            out.println(pokemonJson);
+            String nameFragment = tokens[1].trim();
+            String foundPokemons = dataHandler.searchPokemonByName(nameFragment);
+            out.println(foundPokemons);
         } else {
             out.println("Niepoprawna komenda SEARCH. Użyj: SEARCH <name>");
         }
     }
+
+    private void handleSearchByTypeName(String request, PrintWriter out) {
+
+        String[] tokens = request.split("\\s+", 2); // Dzieli komendę na części
+        if (tokens.length == 2) {
+            String typeName = tokens[1].trim();
+            String foundPokemons = dataHandler.searchPokemonByTypeName(typeName);
+            out.println(foundPokemons);
+        } else {
+            out.println("Niepoprawna komenda SEARCH_TYPE_NAME. Użyj: SEARCH_TYPE_NAME <typeName>");
+        }
+    }
+
+
+    //koniec klasy
 }
