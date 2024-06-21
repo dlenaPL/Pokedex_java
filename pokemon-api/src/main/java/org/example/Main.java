@@ -1,8 +1,6 @@
 package org.example;
 
-
 import com.google.gson.*;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
@@ -10,10 +8,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Duration;
 import java.util.*;
-
-
 
 public class Main {
     public static void main(String[] args) throws IOException, InterruptedException, URISyntaxException {
@@ -41,13 +36,11 @@ public class Main {
             tempPokemon.setTypes(new ArrayList<>());
 
             System.out.println("=================== Setting up name =================================");
-
             String pokemonName = String.valueOf(obj.get("name"));
             String name = pokemonName.replace("\"", "");
             tempPokemon.setName(name.substring(0, 1).toUpperCase() + name.substring(1));
 
             System.out.println("=================== setting up moves =======================================");
-
             JsonArray moves = obj.get("moves").getAsJsonArray();
             for (JsonElement mov : moves) {
 
@@ -62,7 +55,6 @@ public class Main {
 
             System.out.println("=================== setting up stats =======================================");
             JsonArray pokemonStats = obj.get("stats").getAsJsonArray();
-
             tempPokemon.setHp(pokemonStats.get(0).getAsJsonObject().get("base_stat").getAsInt());
             tempPokemon.setAttack(pokemonStats.get(1).getAsJsonObject().get("base_stat").getAsInt());
             tempPokemon.setDefense(pokemonStats.get(2).getAsJsonObject().get("base_stat").getAsInt());
@@ -71,7 +63,6 @@ public class Main {
             tempPokemon.setSpeed(pokemonStats.get(5).getAsJsonObject().get("base_stat").getAsInt());
 
             System.out.println("=================== setting up types =======================================");
-
             for(JsonElement type : obj.get("types").getAsJsonArray()){
                 String typeText = String.valueOf(type.getAsJsonObject().get("type").getAsJsonObject().get("name"));
                 String clearedType = typeText.replace("\"", "");
@@ -84,18 +75,12 @@ public class Main {
                 }
             }
 
-
-
             System.out.println("=================== setting up img =======================================");
-
             String imgString = String.valueOf(obj.get("sprites").getAsJsonObject().get("front_default"));
             tempPokemon.setPokeImageSrc(imgString.replace("\"", ""));
 
-
             System.out.println("=================== setting up flavor text =======================================");
-
             uri = String.format("https://pokeapi.co/api/v2/pokemon-species/%s/", number);
-
             getRequest = HttpRequest.newBuilder()
                     .uri(new URI(uri))
                     .GET()
@@ -103,19 +88,14 @@ public class Main {
 
             client = HttpClient.newHttpClient();
             getResponse = client.send(getRequest, HttpResponse.BodyHandlers.ofString());
-
             jsonResponse = getResponse.body();
             element = JsonParser.parseString(jsonResponse);
             obj = element.getAsJsonObject();
-
             String flavorText = String.valueOf(obj.getAsJsonObject().get("flavor_text_entries").getAsJsonArray().get(3).getAsJsonObject().get("flavor_text"));
-
             String flavorTextCleared = flavorText.replace("\\n", " ").replace("\\f", " ");
             tempPokemon.setFlavorText(flavorTextCleared);
-
             pokemons.add(tempPokemon);
         }
-
 
         System.out.println("pokemons length: " + pokemons.size());
         Gson gson = new Gson();
@@ -134,7 +114,6 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        App pokedex = new App(pokemons);
-        pokedex.run();
+
     }
 }

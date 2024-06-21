@@ -8,6 +8,8 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -38,7 +40,7 @@ public class PokedexClientGUI {
     private JComboBox<String> searchTypeCombo;
     private JLabel pokemonImageLabel;  // Pole do przechowywania etykiety obrazu
     private List<Pokemon> currentPokemonList = new ArrayList<>(); // Lista do przechowywania aktualnych Pokemonów
-    private JTextField pokemonNameField; // Pole tekstowe dla nazwy Pokemona
+    private JTextField searchField; // Pole tekstowe dla nazwy Pokemona
     private JPanel imgContainer = new RoundedPanel(15);
     private JLabel pokemonNameLabel;
     private RoundedPanel pokemonDescriptionPanel;
@@ -72,15 +74,15 @@ public class PokedexClientGUI {
         window.setLayout(null);
         window.setSize(800,600);
         window.setBounds(0,0,800,600);
-        window.setBackground(Color.CYAN);
+        window.setBackground(Color.decode("#beaed4"));
         frame.add(window);
 
         statusLabel = new JLabel("Nie połączono z serwerem", SwingConstants.CENTER);
         statusLabel.setSize(new Dimension(200,20));
         statusLabel.setBounds(300,0,200,20);
-        statusLabel.setBackground(Color.BLUE);
+        statusLabel.setOpaque(true);
+        statusLabel.setBackground(Color.red);
         window.add(statusLabel);
-
 
         responseArea = new JTextArea();
         responseArea.setEditable(false);
@@ -89,45 +91,68 @@ public class PokedexClientGUI {
 
         window.add(responseArea);
 
-
         JScrollPane responseAreaScrollPane = new JScrollPane(responseArea);
 
-// Ustawienie preferowanej wielkości JScrollPane
         responseAreaScrollPane.setPreferredSize(new Dimension(700, 96));
 
-// Dodanie JScrollPane do okna
         window.add(responseAreaScrollPane);
 
-// Ustawienie położenia JScrollPane, jeśli jest potrzebne
         responseAreaScrollPane.setBounds(50, 460, 700, 96);
 
-
-        // Inicjalizacja tabeli
         tableModel = new DefaultTableModel(new Object[]{"Nazwa", "Typy", "HP","ATK", "DEF", "Sp.ATK", "Sp.DEF", "Speed"}, 0){
+            //zakaz edycji wierszy
             @Override
             public boolean isCellEditable(int row, int column){
                 return false;
             }
+            //zmiana sposobu traktowania kolumn na Integer, zeby sortowanie poprawnie dzialalo
+            @Override
+            public Class<?> getColumnClass(int columnIndex){
+
+                if(columnIndex == 2){
+                    return Integer.class;
+                }
+                if(columnIndex == 3){
+                    return Integer.class;
+                }
+                if(columnIndex == 4){
+                    return Integer.class;
+                }
+                if(columnIndex == 5){
+                    return Integer.class;
+                }
+                if(columnIndex == 6){
+                    return Integer.class;
+                }
+                if(columnIndex == 7){
+                    return Integer.class;
+                }
+                return String.class;
+            }
         };
+
         pokemonTable = new JTable(tableModel);
         pokemonTable.setSize(new Dimension(500,400));
         pokemonTable.setBounds(20,50,500,400);
+        //zakaz przesuwania kolumn miedzy soba
+        pokemonTable.getTableHeader().setReorderingAllowed(false);
+
+        //sortowanie kolumn
+        TableRowSorter<TableModel> sorter = new TableRowSorter<>(pokemonTable.getModel());
+        pokemonTable.setRowSorter(sorter);
+
 
         window.add(pokemonTable);
         pokemonTable.setBackground(Color.white);
-// Tworzenie JScrollPane i przypisanie do niego tabeli
+
         JScrollPane scrollPane = new JScrollPane(pokemonTable);
 
-// Ustawienie preferowanej wielkości JScrollPane
         scrollPane.setPreferredSize(new Dimension(500, 400));
 
-// Dodanie JScrollPane do okna
         window.add(scrollPane);
 
-// Ustawienie położenia JScrollPane, jeśli jest potrzebne
         scrollPane.setBounds(20, 50, 500, 400);
 
-        // Dodanie panelu do wyświetlania obrazu Pokémona
         pokemonDescriptionPanel = new RoundedPanel(15);
         pokemonDescriptionPanel.setLayout(null);
 
@@ -164,13 +189,11 @@ public class PokedexClientGUI {
         statsPanel.setBackground(Color.white);
         statsPanel.setVisible(false);
 
-
         statsHeader = new JLabel("Performance", SwingConstants.CENTER);
         statsHeader.setSize(new Dimension(200,20));
         statsHeader.setFont(new Font("Arial", Font.BOLD, 16));
         statsHeader.setBounds(10,10,200,20);
         statsPanel.add(statsHeader);
-
 
         int statLabelWidth = 160;
         int statLabelHeight = 20;
@@ -198,8 +221,6 @@ public class PokedexClientGUI {
         attackLabel.setBounds(55,60,statLabelWidth,statLabelHeight);
         statsPanel.add(attackLabel);
 
-//         ProgressLabel defenseLabel;
-
         JLabel defDesc = new JLabel("DEF", SwingConstants.CENTER);
         defDesc.setSize(new Dimension(40,20));
         defDesc.setBounds(5, 85,40,20);
@@ -210,8 +231,6 @@ public class PokedexClientGUI {
         defenseLabel.setSize(new Dimension(statLabelWidth,statLabelHeight));
         defenseLabel.setBounds(55,85,statLabelWidth,statLabelHeight);
         statsPanel.add(defenseLabel);
-
-//        ProgressLabel spAtkLabel;
 
         JLabel spAtkDesc = new JLabel("SpATK", SwingConstants.CENTER);
         spAtkDesc.setSize(new Dimension(40,20));
@@ -224,8 +243,6 @@ public class PokedexClientGUI {
         spAtkLabel.setBounds(55,110,statLabelWidth,statLabelHeight);
         statsPanel.add(spAtkLabel);
 
-//        private ProgressLabel spDefLabel;
-
         JLabel spDefDesc = new JLabel("SpDEF", SwingConstants.CENTER);
         spDefDesc.setSize(new Dimension(40,20));
         spDefDesc.setBounds(5, 135,40,20);
@@ -236,8 +253,6 @@ public class PokedexClientGUI {
         spDefLabel.setSize(new Dimension(statLabelWidth,statLabelHeight));
         spDefLabel.setBounds(55,135,statLabelWidth,statLabelHeight);
         statsPanel.add(spDefLabel);
-
-    //         ProgressLabel speedLabel;
 
         JLabel speedDesc = new JLabel("SPEED", SwingConstants.CENTER);
         speedDesc.setSize(new Dimension(40,20));
@@ -250,28 +265,24 @@ public class PokedexClientGUI {
         speedLabel.setBounds(55,160,statLabelWidth,statLabelHeight);
         statsPanel.add(speedLabel);
 
-
-
         pokemonDescriptionPanel.add(imgContainer);
         pokemonDescriptionPanel.add(pokemonNameLabel);
         pokemonDescriptionPanel.add(statsPanel);
-
-
 
         pokemonDescriptionPanel.setSize(new Dimension(220,400));
         pokemonDescriptionPanel.setBounds(540,50,220,400);
         pokemonDescriptionPanel.setBackground(Color.white);
 
-        window.add(pokemonDescriptionPanel);  // Dodano panel po prawej stronie
+        window.add(pokemonDescriptionPanel);
 
-        // Dodanie słuchacza do tabeli, aby reagować na wybór wiersza
         pokemonTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
                     int selectedRow = pokemonTable.getSelectedRow();
                     if (selectedRow != -1) {
-                        String pokemonName = (String) tableModel.getValueAt(selectedRow, 0);
+                        int modelRow = pokemonTable.convertRowIndexToModel(selectedRow);
+                        String pokemonName = (String) tableModel.getValueAt(modelRow, 0);
                         displayPokemonImage(pokemonName);
                     }
                 }
@@ -279,11 +290,12 @@ public class PokedexClientGUI {
         });
 
         JPanel panel = new JPanel(null);
+        panel.setBackground(Color.decode("#beaed4"));
 
-        pokemonNameField = new JTextField(); // Pole tekstowe dla nazwy Pokemona
-        pokemonNameField.setSize(new Dimension(480,20));
-        pokemonNameField.setBounds(10,0,480,20);
-        pokemonNameField.addActionListener(new ActionListener() {
+        searchField = new JTextField(); // Pole tekstowe dla nazwy Pokemona
+        searchField.setSize(new Dimension(480,20));
+        searchField.setBounds(10,0,480,20);
+        searchField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if(searchTypeCombo.getSelectedItem() == "Nazwa"){
@@ -294,8 +306,6 @@ public class PokedexClientGUI {
 
             }
         });
-
-
 
         String[] searchOptions = new String[] {"Nazwa", "Typ"};
         searchTypeCombo = new JComboBox<>(searchOptions);
@@ -308,7 +318,7 @@ public class PokedexClientGUI {
         searchButton.setSize(new Dimension(80,20));
         searchButton.setBounds(610,0,80,20);
 
-        panel.add(pokemonNameField);
+        panel.add(searchField);
         panel.add(searchTypeCombo);
         panel.add(searchButton);
 
@@ -316,7 +326,6 @@ public class PokedexClientGUI {
         panel.setBounds(50,20,700,20);
         window.add(panel);
 
-        // Dodanie ActionListener do przycisku "Szukaj"
         searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -330,12 +339,11 @@ public class PokedexClientGUI {
 
         frame.setVisible(true);
 
-        // Początkowa próba połączenia z serwerem
         connectToServer();
     }
 
     private void searchPokemonByName() {
-        String pokemonName = pokemonNameField.getText().trim();
+        String pokemonName = searchField.getText().trim();
         if (!pokemonName.isEmpty()) {
             sendCommand("SEARCH: " + pokemonName);
         } else {
@@ -344,7 +352,7 @@ public class PokedexClientGUI {
     }
 
     private void searchPokemonByType(){
-        String pokemonType = pokemonNameField.getText().trim();
+        String pokemonType = searchField.getText().trim();
         if (!pokemonType.isEmpty()) {
             sendCommand("SEARCH_TYPE_NAME: " + pokemonType);
         } else {
@@ -370,18 +378,16 @@ public class PokedexClientGUI {
                 out = new PrintWriter(socket.getOutputStream(), true);
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-                // Wysyłanie wiadomości powitalnej do serwera
                 out.println("HELLO_SERVER");
 
-                // Odbieranie odpowiedzi od serwera
                 String response = in.readLine();
                 if (response != null && response.equals("Witaj, kliencie! Połączenie zostało nawiązane.")) {
                     isConnected = true;
                     SwingUtilities.invokeLater(() -> {
                         statusLabel.setText("Połączono z serwerem");
+                        statusLabel.setOpaque(true);
+                        statusLabel.setBackground(Color.green);
                         responseArea.append("Połączono z serwerem.\n");
-
-                        // Pobierz wszystkie Pokemony z serwera i zaktualizuj tabelę
                         requestAllPokemons();
                     });
                 } else {
@@ -390,10 +396,10 @@ public class PokedexClientGUI {
                     SwingUtilities.invokeLater(() -> {
                         statusLabel.setText("Nie udało się połączyć z serwerem");
 
+
                     });
                 }
 
-                // Obsługa komend wysyłanych do serwera
                 String serverResponse;
                 while ((serverResponse = in.readLine()) != null) {
                     String finalServerResponse = serverResponse;
@@ -412,20 +418,28 @@ public class PokedexClientGUI {
 
         responseArea.append(split[0] + " command used.\n");
 
-        // Przyjmujemy, że serwer wysyła pełne dane JSON dla komendy 'get_all'
         if (response.startsWith("get_all:")) {
             String jsonData = response.substring("get_all:".length());
             Gson gson = new Gson();
             Type pokemonListType = new TypeToken<ArrayList<Pokemon>>() {}.getType();
             List<Pokemon> pokemons = gson.fromJson(jsonData, pokemonListType);
-            updatePokemonTable(pokemons);
+            if(pokemons != null){
+                updatePokemonTable(pokemons);
+            }else {
+                responseArea.append("Pokemon not found or doesn't exist");
+            }
+
         }
         if (response.startsWith("SEARCH_TYPE_NAME:")) {
             String jsonData = response.substring("SEARCH_TYPE_NAME:".length());
             Gson gson = new Gson();
             Type pokemonListType = new TypeToken<ArrayList<Pokemon>>() {}.getType();
             List<Pokemon> pokemons = gson.fromJson(jsonData, pokemonListType);
-            updatePokemonTable(pokemons);
+            if(pokemons != null){
+                updatePokemonTable(pokemons);
+            }else {
+                responseArea.append("Pokemon not found or doesn't exist");
+            }
         }
 
         if (response.startsWith("SEARCH:")) {
@@ -433,10 +447,12 @@ public class PokedexClientGUI {
             Gson gson = new Gson();
             Type pokemonListType = new TypeToken<ArrayList<Pokemon>>() {}.getType();
             List<Pokemon> pokemons = gson.fromJson(jsonData, pokemonListType);
-            updatePokemonTable(pokemons);
+            if(pokemons != null){
+                updatePokemonTable(pokemons);
+            } else {
+                responseArea.append("Pokemon not found or doesn't exist");
+            }
         }
-
-
     }
 
     private void updatePokemonTable(List<Pokemon> pokemons) {
@@ -469,8 +485,6 @@ public class PokedexClientGUI {
                     pokemonNameLabel.setText(pokemon.getName());  // Usuń tekst, jeśli istnieje
                     imgContainer.setBackground(Color.decode(pokemon.getTypes().get(0).getLabel()));
 
-
-
                     displayPokemonTypeLabel(pokemon, typeLabelA, typeLabelB);
                     showStats(pokemon);
 
@@ -491,21 +505,19 @@ public class PokedexClientGUI {
             label1.setBounds(80,155,60,20);
             pokemonDescriptionPanel.add(label1);
             label1.setVisible(true);
+
         } else if (pokemon.getTypes().size() == 2) {
             label1.setBackground(Color.decode(pokemon.getTypes().get(0).getLabel()));
             label1.setText(pokemon.getTypes().get(0).name());
             label1.setBounds(30,155,60,20);
             pokemonDescriptionPanel.add(label1);
             label2.setVisible(true);
-
             label2.setBackground(Color.decode(pokemon.getTypes().get(1).getLabel()));
             label2.setText(pokemon.getTypes().get(1).name());
             label2.setBounds(130,155,60,20);
             pokemonDescriptionPanel.add(label2);
             label2.setVisible(true);
         }
-
-
     }
 
     private void showStats(Pokemon pokemon){
@@ -528,8 +540,6 @@ public class PokedexClientGUI {
 
         speedLabel.setFillWidth((int) (pokemon.getSpeed() * ((double) pokemon.getSpeed() /160)));
         speedLabel.setText(pokemon.getSpeed().toString() + "/ 160");
-
-
     }
 
     private void requestAllPokemons() {
