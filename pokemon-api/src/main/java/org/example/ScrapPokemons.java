@@ -10,7 +10,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.*;
 
-public class Main {
+public class ScrapPokemons {
     public static void main(String[] args) throws IOException, InterruptedException, URISyntaxException {
 
         List<Pokemon> pokemons = new ArrayList<>();
