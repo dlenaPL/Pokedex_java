@@ -20,11 +20,13 @@ public class PokemonDataHandler {
 
     public PokemonDataHandler(String jsonFilePath) {
         this.jsonFilePath = jsonFilePath;
+        System.out.println("-----------------datahandler constructor");
         loadData();
     }
 
-    private void loadData() {
+    public void loadData() {
         Gson gson = new Gson();
+        System.out.println("-----------loading data in data handler");
         try {
             FileReader reader = new FileReader(jsonFilePath);
                 // Użycie TypeToken do obsługi listy typu Person
@@ -41,25 +43,26 @@ public class PokemonDataHandler {
         return pokemons;
     }
 
-    public String searchPokemonByName(String nameFragment) {
+    public List<Pokemon> searchPokemonByName(String nameFragment) {
         List<Pokemon> matchingPokemons = pokemons.stream()
                 .filter(p -> p.getName().toLowerCase().contains(nameFragment.toLowerCase()))
                 .toList();
 
         if (matchingPokemons.isEmpty()) {
-            return "Nie znaleziono Pokemonów o nazwie zawierającej: " + nameFragment;
+            System.out.println("Nie znaleziono Pokemonów o nazwie zawierającej: " + nameFragment);
+            return null;
         }
 
-        return matchingPokemons.toString();
+        return matchingPokemons;
     }
 
-    public String searchPokemonByTypeName(String typeName) {
+    public List<Pokemon> searchPokemonByTypeName(String typeName) {
         PokemonType type;
         try {
             type = PokemonType.fromName(typeName);
             System.out.println("type z funkcji: " + type);
         } catch (IllegalArgumentException e) {
-            return "Nieznany typ: " + typeName;
+            return null;
         }
 
         List<Pokemon> matchingPokemons = pokemons.stream()
@@ -67,57 +70,15 @@ public class PokemonDataHandler {
                 .toList();
 
         if (matchingPokemons.isEmpty()) {
-            return "Nie znaleziono Pokemonów o typie: " + typeName;
+            return null;
         }
 
-        return matchingPokemons.toString();
-    }
-//
-//    public String addPokemon(Pokemon pokemon) {
-//        pokemons.add(pokemon);
-//        return saveData();
-//    }
-//
-//    public String removePokemon(String name) {
-//        pokemons.removeIf(p -> p.getName().equalsIgnoreCase(name));
-//        return saveData();
-//    }
-//
-//    public String updatePokemon(String name, Pokemon updatedPokemon) {
-//        for (int i = 0; i < pokemons.size(); i++) {
-//            if (pokemons.get(i).getName().equalsIgnoreCase(name)) {
-//                pokemons.set(i, updatedPokemon);
-//                break;
-//            }
-//        }
-//        return saveData();
-//    }
-
-    private void saveData() {
-        Gson gson = new Gson();
-        try {
-            // Konwersja ArrayListy na JSON w postaci Stringa
-            String json = gson.toJson(pokemons);
-
-            // Zapis JSONa do pliku
-            FileWriter fileWriter = new FileWriter("pokemons.json");
-            fileWriter.write(json);
-            fileWriter.close();
-
-            System.out.println("Pomyślnie zapisano JSON do pliku output.json");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        return matchingPokemons;
     }
 
 
-    public String getAllPokemonAsJson() {
-        return "getAllPokemonAsJson";
-    }
 
-    public String searchPokemonByNameAsJson(String name) {
-        return "searchPokemonByNameAsJson";
-    }
+
+//koniec klasy
 }
 

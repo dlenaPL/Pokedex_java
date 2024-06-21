@@ -1,5 +1,8 @@
 package org.example;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -46,9 +49,8 @@ public class PokedexClientHandler implements Runnable {
                 } else if (request.startsWith("SEARCH")) {
                     handleSearchByName(request, out);
 
-
                     // Obsługa komendy EXIT
-                } else if (request.equalsIgnoreCase("EXIT")) {
+                } else if (request.startsWith("EXIT")) {
                     break;
 
                     // Obsługa nieznanej komendy
@@ -73,34 +75,42 @@ public class PokedexClientHandler implements Runnable {
     }
 
     // Metoda do obsługi komendy GET_ALL
-    private void handleGetAll(PrintWriter out) {
-        String allPokemons = dataHandler.getAllPokemons().toString();
-        out.println(allPokemons);
+    public void handleGetAll(PrintWriter out) {
+        Gson gson = new Gson(); // Użyj prostszego Gson bez ustawiania pretty printing
+        String json = "get_all:" + gson.toJson(dataHandler.getAllPokemons());
+        System.out.println("------------------pokedex client handler handle get all");
+        out.println(json);
     }
 
-    // Metoda do obsługi komendy SEARCH <name>
-    private void handleSearchByName(String request, PrintWriter out) {
+
+    public void handleSearchByName(String request, PrintWriter out) {
         String[] tokens = request.split("\\s+", 2); // Dzieli komendę na części
+        Gson gson = new Gson();
         if (tokens.length == 2) {
             String nameFragment = tokens[1].trim();
-            String foundPokemons = dataHandler.searchPokemonByName(nameFragment);
-            out.println(foundPokemons);
+            String json = "SEARCH:" + gson.toJson(dataHandler.searchPokemonByName(nameFragment));
+
+            out.println(json);
         } else {
             out.println("Niepoprawna komenda SEARCH. Użyj: SEARCH <name>");
         }
     }
 
-    private void handleSearchByTypeName(String request, PrintWriter out) {
+    public void handleSearchByTypeName(String request, PrintWriter out) {
 
         String[] tokens = request.split("\\s+", 2); // Dzieli komendę na części
+        Gson gson = new Gson();
         if (tokens.length == 2) {
             String typeName = tokens[1].trim();
-            String foundPokemons = dataHandler.searchPokemonByTypeName(typeName);
+            String foundPokemons = "SEARCH_TYPE_NAME:" + gson.toJson(dataHandler.searchPokemonByTypeName(typeName));
             out.println(foundPokemons);
         } else {
             out.println("Niepoprawna komenda SEARCH_TYPE_NAME. Użyj: SEARCH_TYPE_NAME <typeName>");
         }
     }
+
+
+
 
 
     //koniec klasy

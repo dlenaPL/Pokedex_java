@@ -37,6 +37,7 @@ public class Pokemon {
                 this.flavorText = flavorText;
                 this.abilities = abilities;
         }
+        
 
         public String getName() {
                 return name;

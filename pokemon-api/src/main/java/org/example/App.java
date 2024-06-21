@@ -24,7 +24,6 @@ public class App implements Runnable {
         window.setLocationRelativeTo(null);
         window.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-
         String path = pokemons.get(0).getPokeImageSrc();
         BufferedImage pokemonMini;
         try {

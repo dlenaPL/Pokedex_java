@@ -20,7 +20,7 @@ public class Main {
 
         List<Pokemon> pokemons = new ArrayList<>();
 
-        for(int i = 1; i <= 10; ++i) {
+        for(int i = 1; i <= 151; ++i) {
             String number = String.valueOf(i);
             String uri = String.format("https://pokeapi.co/api/v2/pokemon/%s/", number);
 

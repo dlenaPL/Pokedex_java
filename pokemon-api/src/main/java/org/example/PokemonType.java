@@ -26,6 +26,10 @@ public enum PokemonType {
         this.label = label;
     }
 
+    public String getLabel(){
+        return label;
+    }
+
     public static PokemonType fromName(String name) {
         for (PokemonType type : PokemonType.values()) {
             if (type.name().equalsIgnoreCase(name)) {

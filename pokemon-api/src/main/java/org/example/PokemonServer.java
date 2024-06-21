@@ -10,7 +10,10 @@ public class PokemonServer {
 
     public static void main(String[] args) {
         PokemonDataHandler dataHandler = new PokemonDataHandler("pokemons.json");
-        try (ServerSocket serverSocket = new ServerSocket(SERVER_PORT)) {
+        System.out.println("-----------------------data handler ustalony");
+        ServerSocket serverSocket = null;
+        try {
+            serverSocket = new ServerSocket(SERVER_PORT);
             System.out.println("Serwer Pokemonów uruchomiony. Oczekiwanie na połączenia...");
 
             while (true) {
@@ -23,6 +26,15 @@ public class PokemonServer {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                try {
+                    serverSocket.close();
+                    System.out.println("Serwer został zamknięty.");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }
