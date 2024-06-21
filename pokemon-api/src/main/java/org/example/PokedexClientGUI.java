@@ -37,6 +37,7 @@ public class PokedexClientGUI {
     private boolean isConnected = false;
     private Socket socket;
 
+    private JPanel searchPanel;
     private JComboBox<String> searchTypeCombo;
     private JLabel pokemonImageLabel;  // Pole do przechowywania etykiety obrazu
     private List<Pokemon> currentPokemonList = new ArrayList<>(); // Lista do przechowywania aktualnych Pokemonów
@@ -56,6 +57,25 @@ public class PokedexClientGUI {
     private ProgressLabel spDefLabel;
     private ProgressLabel speedLabel;
 
+    private final int WINDOW_WIDTH = 1000;
+    private final int WINDOW_HEIGHT = 800;
+    private final int STATUS_LABEL_WIDTH = 200;
+    private final int LABEL_HEIGHT = 20;
+    private final int MARGIN = 10;
+    private final int RESPONSE_AREA_WIDTH = (int) (WINDOW_WIDTH * 0.8);
+    private final int RESPONSE_AREA_HEIGHT = 5*LABEL_HEIGHT;
+    private final int TABLE_WIDTH = (int) (WINDOW_WIDTH*0.6);
+    private final int TABLE_HEIGHT = (int) (WINDOW_HEIGHT*0.7);
+    private final int SEARCH_PANEL_WIDTH = (int) (WINDOW_WIDTH*0.8);
+    private final int POKEMON_PANEL_WIDTH = (int) (WINDOW_WIDTH*0.3);
+    private final int POKEMON_PANEL_HEIGHT = (int) (WINDOW_HEIGHT*0.7);
+    private final int IMAGE_SIZE = 120;
+    private final int TYPE_LABEL_WIDTH = 80;
+    private final int STATS_PANEL_WIDTH = POKEMON_PANEL_WIDTH;
+    private final int STATS_PANEL_HEIGHT = (int) (0.6*POKEMON_PANEL_HEIGHT);
+    private final int STAT_LABEL_WIDTH = (int) (STATS_PANEL_WIDTH*0.7);
+    private final int STAT_DESC_LABEL_WIDTH = 40;
+
 
     public PokedexClientGUI(String serverAddress, int serverPort) {
         this.serverAddress = serverAddress;
@@ -66,38 +86,78 @@ public class PokedexClientGUI {
         JFrame frame = new JFrame("Pokedex Client");
         frame.setLayout(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
+        frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
 
         JPanel window = new JPanel();
         window.setLayout(null);
-        window.setSize(800,600);
-        window.setBounds(0,0,800,600);
+        window.setSize(WINDOW_WIDTH,WINDOW_HEIGHT);
+        window.setBounds(0,0,WINDOW_WIDTH,WINDOW_HEIGHT);
         window.setBackground(Color.decode("#beaed4"));
         frame.add(window);
 
         statusLabel = new JLabel("Nie połączono z serwerem", SwingConstants.CENTER);
-        statusLabel.setSize(new Dimension(200,20));
-        statusLabel.setBounds(300,0,200,20);
+        statusLabel.setSize(new Dimension(STATUS_LABEL_WIDTH,LABEL_HEIGHT));
+        statusLabel.setBounds((int) (WINDOW_WIDTH*0.5 - 0.5*STATUS_LABEL_WIDTH),MARGIN,STATUS_LABEL_WIDTH,LABEL_HEIGHT);
         statusLabel.setOpaque(true);
         statusLabel.setBackground(Color.red);
         window.add(statusLabel);
 
         responseArea = new JTextArea();
         responseArea.setEditable(false);
-        responseArea.setSize(new Dimension(700,96));
-        responseArea.setBounds(50,460,700,96);
+        responseArea.setSize(new Dimension(RESPONSE_AREA_WIDTH, RESPONSE_AREA_HEIGHT));
+        System.out.println(WINDOW_HEIGHT - RESPONSE_AREA_HEIGHT - MARGIN);
+        responseArea.setBounds((int) (WINDOW_WIDTH*0.5 - RESPONSE_AREA_WIDTH*0.5), (int) (WINDOW_HEIGHT - 1.5*RESPONSE_AREA_HEIGHT - MARGIN),RESPONSE_AREA_WIDTH,RESPONSE_AREA_HEIGHT);
 
         window.add(responseArea);
 
         JScrollPane responseAreaScrollPane = new JScrollPane(responseArea);
 
-        responseAreaScrollPane.setPreferredSize(new Dimension(700, 96));
+        responseAreaScrollPane.setPreferredSize(new Dimension(RESPONSE_AREA_WIDTH, RESPONSE_AREA_HEIGHT));
 
         window.add(responseAreaScrollPane);
 
-        responseAreaScrollPane.setBounds(50, 460, 700, 96);
+        responseAreaScrollPane.setBounds((int) (WINDOW_WIDTH*0.5 - RESPONSE_AREA_WIDTH*0.5), (int) (WINDOW_HEIGHT - 1.5*RESPONSE_AREA_HEIGHT - MARGIN), RESPONSE_AREA_WIDTH, RESPONSE_AREA_HEIGHT);
+
+
+        searchPanel = new JPanel(null);
+        searchPanel.setBackground(Color.decode("#beaed4"));
+        searchPanel.setSize(new Dimension(SEARCH_PANEL_WIDTH,LABEL_HEIGHT));
+        System.out.println("search panel: " + SEARCH_PANEL_WIDTH);
+        searchPanel.setBounds((int) (0.5*WINDOW_WIDTH - 0.5*SEARCH_PANEL_WIDTH),statusLabel.getY()+statusLabel.getHeight()+MARGIN,SEARCH_PANEL_WIDTH,LABEL_HEIGHT);
+
+        searchField = new JTextField(); // Pole tekstowe dla nazwy Pokemona
+        searchField.setSize(new Dimension(480,20));
+        searchField.setBounds(10,0,480,20);
+        searchField.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(searchTypeCombo.getSelectedItem() == "Nazwa"){
+                    searchPokemonByName();
+                }else if(searchTypeCombo.getSelectedItem() == "Typ"){
+                    searchPokemonByType();
+                }
+            }
+        });
+
+        String[] searchOptions = new String[] {"Nazwa", "Typ"};
+        searchTypeCombo = new JComboBox<>(searchOptions);
+        searchTypeCombo.setSize(new Dimension(100,20));
+        searchTypeCombo.setBounds(500,0,100,20);
+        searchTypeCombo.setEditable(false);
+        searchTypeCombo.setSelectedIndex(0);
+
+        JButton searchButton = new JButton("Szukaj"); // Przycisk "Szukaj"
+        searchButton.setSize(new Dimension(80,20));
+        searchButton.setBounds(610,0,80,20);
+
+        searchPanel.add(searchField);
+        searchPanel.add(searchTypeCombo);
+        searchPanel.add(searchButton);
+
+
+        window.add(searchPanel);
 
         tableModel = new DefaultTableModel(new Object[]{"Nazwa", "Typy", "HP","ATK", "DEF", "Sp.ATK", "Sp.DEF", "Speed"}, 0){
             //zakaz edycji wierszy
@@ -132,8 +192,8 @@ public class PokedexClientGUI {
         };
 
         pokemonTable = new JTable(tableModel);
-        pokemonTable.setSize(new Dimension(500,400));
-        pokemonTable.setBounds(20,50,500,400);
+        pokemonTable.setSize(new Dimension(TABLE_WIDTH,TABLE_HEIGHT));
+        pokemonTable.setBounds(20,searchPanel.getY()+searchPanel.getHeight()+MARGIN,TABLE_WIDTH,TABLE_HEIGHT);
         //zakaz przesuwania kolumn miedzy soba
         pokemonTable.getTableHeader().setReorderingAllowed(false);
 
@@ -147,131 +207,133 @@ public class PokedexClientGUI {
 
         JScrollPane scrollPane = new JScrollPane(pokemonTable);
 
-        scrollPane.setPreferredSize(new Dimension(500, 400));
+        scrollPane.setPreferredSize(new Dimension(TABLE_WIDTH, TABLE_HEIGHT));
 
         window.add(scrollPane);
 
-        scrollPane.setBounds(20, 50, 500, 400);
+        scrollPane.setBounds(20, searchPanel.getY()+searchPanel.getHeight()+MARGIN, TABLE_WIDTH, TABLE_HEIGHT);
 
         pokemonDescriptionPanel = new RoundedPanel(15);
         pokemonDescriptionPanel.setLayout(null);
+        pokemonDescriptionPanel.setSize(new Dimension(POKEMON_PANEL_WIDTH,POKEMON_PANEL_HEIGHT));
+        pokemonDescriptionPanel.setBounds(
+                WINDOW_WIDTH-POKEMON_PANEL_WIDTH-50,
+                searchPanel.getY()+searchPanel.getHeight()+MARGIN,
+                POKEMON_PANEL_WIDTH,
+                POKEMON_PANEL_HEIGHT);
+
+        pokemonDescriptionPanel.setBackground(Color.white);
 
         imgContainer.setLayout(null);
-        imgContainer.setSize(220,120);
+        imgContainer.setSize(POKEMON_PANEL_WIDTH, (int) (POKEMON_PANEL_HEIGHT*0.3));
 
-        imgContainer.setBounds(0,0,220,120);
+        imgContainer.setBounds(0,0,POKEMON_PANEL_WIDTH, (int) (POKEMON_PANEL_HEIGHT*0.3));
         imgContainer.setBackground(Color.white);
 
         pokemonNameLabel = new JLabel("", SwingConstants.CENTER);
         pokemonNameLabel.setLayout(null);
         pokemonNameLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        pokemonNameLabel.setSize(160,30);
-        pokemonNameLabel.setBounds(30,120,160,30);
+        pokemonNameLabel.setSize(160,LABEL_HEIGHT);
+        pokemonNameLabel.setBounds((int) (pokemonDescriptionPanel.getWidth()*0.5 - pokemonNameLabel.getWidth()*0.5), (int) (POKEMON_PANEL_HEIGHT*0.3 + MARGIN),160,LABEL_HEIGHT);
 
         pokemonImageLabel = new JLabel();
-        pokemonImageLabel.setSize(new Dimension(120,120));
-        pokemonImageLabel.setBounds(50,0,120,120);
+        pokemonImageLabel.setSize(new Dimension(IMAGE_SIZE, IMAGE_SIZE));
+        pokemonImageLabel.setBounds((int) (imgContainer.getWidth()*0.5 - IMAGE_SIZE*0.5), (int) (imgContainer.getHeight()*0.5 - IMAGE_SIZE*0.5),IMAGE_SIZE,IMAGE_SIZE);
 
         imgContainer.add(pokemonImageLabel);
 
         typeLabelA = new RoundedLabel("", 10);
-        typeLabelA.setSize(new Dimension(60,20));
+        typeLabelA.setSize(new Dimension(TYPE_LABEL_WIDTH,LABEL_HEIGHT));
         typeLabelA.setHorizontalAlignment(SwingConstants.CENTER);
         typeLabelA.setVisible(false);
         typeLabelB = new RoundedLabel("", 10);
-        typeLabelB.setSize(new Dimension(60,20));
+        typeLabelB.setSize(new Dimension(TYPE_LABEL_WIDTH,LABEL_HEIGHT));
         typeLabelB.setHorizontalAlignment(SwingConstants.CENTER);
         typeLabelB.setVisible(false);
 
         statsPanel.setLayout(null);
-        statsPanel.setSize(new Dimension(220,200));
-        statsPanel.setBounds(0,180,220,200);
+        statsPanel.setSize(new Dimension(STATS_PANEL_WIDTH,STATS_PANEL_HEIGHT));
+        statsPanel.setBounds(0, (int) (STATS_PANEL_HEIGHT*0.7),STATS_PANEL_WIDTH,STATS_PANEL_HEIGHT);
         statsPanel.setBackground(Color.white);
         statsPanel.setVisible(false);
 
         statsHeader = new JLabel("Performance", SwingConstants.CENTER);
-        statsHeader.setSize(new Dimension(200,20));
+        statsHeader.setSize(new Dimension(200,LABEL_HEIGHT));
         statsHeader.setFont(new Font("Arial", Font.BOLD, 16));
-        statsHeader.setBounds(10,10,200,20);
+
+        statsHeader.setBounds((int) (STATS_PANEL_WIDTH*0.5 - statsHeader.getWidth()*0.5),MARGIN,200,LABEL_HEIGHT);
         statsPanel.add(statsHeader);
 
-        int statLabelWidth = 160;
-        int statLabelHeight = 20;
-
         JLabel hpDesc = new JLabel("HP", SwingConstants.CENTER);
-        hpDesc.setSize(new Dimension(40,20));
-        hpDesc.setBounds(5,35,40,20);
+        hpDesc.setSize(new Dimension(STAT_DESC_LABEL_WIDTH,LABEL_HEIGHT));
+        hpDesc.setBounds(MARGIN,statsHeader.getY()+LABEL_HEIGHT+MARGIN,STAT_DESC_LABEL_WIDTH,LABEL_HEIGHT);
         statsPanel.add(hpDesc);
 
         hpLabel = new ProgressLabel("", 0, Color.decode("#7fc97f"));
         hpLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        hpLabel.setSize(new Dimension(statLabelWidth,statLabelHeight));
-        hpLabel.setBounds(55,35,statLabelWidth,statLabelHeight);
+        hpLabel.setSize(new Dimension(STAT_LABEL_WIDTH,LABEL_HEIGHT));
+        hpLabel.setBounds(STAT_DESC_LABEL_WIDTH + MARGIN+ MARGIN,statsHeader.getY()+LABEL_HEIGHT+MARGIN,STAT_LABEL_WIDTH,LABEL_HEIGHT);
 
         statsPanel.add(hpLabel);
 
         JLabel atkDesc = new JLabel("ATK", SwingConstants.CENTER);
-        atkDesc.setSize(new Dimension(40,20));
-        atkDesc.setBounds(5, 60,40,20);
+        atkDesc.setSize(new Dimension(STAT_DESC_LABEL_WIDTH,LABEL_HEIGHT));
+        atkDesc.setBounds(MARGIN, hpLabel.getY()+LABEL_HEIGHT+MARGIN,STAT_DESC_LABEL_WIDTH,LABEL_HEIGHT);
         statsPanel.add(atkDesc);
 
         attackLabel = new ProgressLabel("", 0, Color.decode("#beaed4"));
         attackLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        attackLabel.setSize(new Dimension(statLabelWidth,statLabelHeight));
-        attackLabel.setBounds(55,60,statLabelWidth,statLabelHeight);
+        attackLabel.setSize(new Dimension(STAT_LABEL_WIDTH,LABEL_HEIGHT));
+        attackLabel.setBounds(STAT_DESC_LABEL_WIDTH + MARGIN+ MARGIN,hpLabel.getY()+LABEL_HEIGHT+MARGIN,STAT_LABEL_WIDTH,LABEL_HEIGHT);
         statsPanel.add(attackLabel);
 
         JLabel defDesc = new JLabel("DEF", SwingConstants.CENTER);
-        defDesc.setSize(new Dimension(40,20));
-        defDesc.setBounds(5, 85,40,20);
+        defDesc.setSize(new Dimension(STAT_DESC_LABEL_WIDTH,LABEL_HEIGHT));
+        defDesc.setBounds(MARGIN, attackLabel.getY()+LABEL_HEIGHT+MARGIN,STAT_DESC_LABEL_WIDTH,LABEL_HEIGHT);
         statsPanel.add(defDesc);
 
         defenseLabel = new ProgressLabel("", 0, Color.decode("#fdc086"));
         defenseLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        defenseLabel.setSize(new Dimension(statLabelWidth,statLabelHeight));
-        defenseLabel.setBounds(55,85,statLabelWidth,statLabelHeight);
+        defenseLabel.setSize(new Dimension(STAT_LABEL_WIDTH,LABEL_HEIGHT));
+        defenseLabel.setBounds(STAT_DESC_LABEL_WIDTH+ MARGIN + MARGIN,attackLabel.getY()+LABEL_HEIGHT+MARGIN,STAT_LABEL_WIDTH,LABEL_HEIGHT);
         statsPanel.add(defenseLabel);
 
         JLabel spAtkDesc = new JLabel("SpATK", SwingConstants.CENTER);
-        spAtkDesc.setSize(new Dimension(40,20));
-        spAtkDesc.setBounds(5, 110,40,20);
+        spAtkDesc.setSize(new Dimension(STAT_DESC_LABEL_WIDTH,LABEL_HEIGHT));
+        spAtkDesc.setBounds(MARGIN, defenseLabel.getY()+LABEL_HEIGHT+MARGIN,STAT_DESC_LABEL_WIDTH,LABEL_HEIGHT);
         statsPanel.add(spAtkDesc);
 
         spAtkLabel = new ProgressLabel("", 0, Color.decode("#ffff99"));
         spAtkLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        spAtkLabel.setSize(new Dimension(statLabelWidth,statLabelHeight));
-        spAtkLabel.setBounds(55,110,statLabelWidth,statLabelHeight);
+        spAtkLabel.setSize(new Dimension(STAT_LABEL_WIDTH,LABEL_HEIGHT));
+        spAtkLabel.setBounds(STAT_DESC_LABEL_WIDTH + MARGIN+ MARGIN,defenseLabel.getY()+LABEL_HEIGHT+MARGIN,STAT_LABEL_WIDTH,LABEL_HEIGHT);
         statsPanel.add(spAtkLabel);
 
         JLabel spDefDesc = new JLabel("SpDEF", SwingConstants.CENTER);
-        spDefDesc.setSize(new Dimension(40,20));
-        spDefDesc.setBounds(5, 135,40,20);
+        spDefDesc.setSize(new Dimension(STAT_DESC_LABEL_WIDTH,LABEL_HEIGHT));
+        spDefDesc.setBounds(MARGIN, spAtkLabel.getY()+LABEL_HEIGHT+MARGIN,STAT_DESC_LABEL_WIDTH,LABEL_HEIGHT);
         statsPanel.add(spDefDesc);
 
         spDefLabel = new ProgressLabel("", 0, Color.decode("#386cb0"));
         spDefLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        spDefLabel.setSize(new Dimension(statLabelWidth,statLabelHeight));
-        spDefLabel.setBounds(55,135,statLabelWidth,statLabelHeight);
+        spDefLabel.setSize(new Dimension(STAT_LABEL_WIDTH,LABEL_HEIGHT));
+        spDefLabel.setBounds(STAT_DESC_LABEL_WIDTH + MARGIN+ MARGIN,spAtkLabel.getY()+LABEL_HEIGHT+MARGIN,STAT_LABEL_WIDTH,LABEL_HEIGHT);
         statsPanel.add(spDefLabel);
 
         JLabel speedDesc = new JLabel("SPEED", SwingConstants.CENTER);
-        speedDesc.setSize(new Dimension(40,20));
-        speedDesc.setBounds(5, 160,40,20);
+        speedDesc.setSize(new Dimension(STAT_DESC_LABEL_WIDTH,LABEL_HEIGHT));
+        speedDesc.setBounds(MARGIN, spDefLabel.getY()+LABEL_HEIGHT+MARGIN,STAT_DESC_LABEL_WIDTH,LABEL_HEIGHT);
         statsPanel.add(speedDesc);
 
         speedLabel = new ProgressLabel("", 0, Color.decode("#f0027f"));
         speedLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        speedLabel.setSize(new Dimension(statLabelWidth,statLabelHeight));
-        speedLabel.setBounds(55,160,statLabelWidth,statLabelHeight);
+        speedLabel.setSize(new Dimension(STAT_LABEL_WIDTH,LABEL_HEIGHT));
+        speedLabel.setBounds(STAT_DESC_LABEL_WIDTH + MARGIN+ MARGIN,spDefLabel.getY()+LABEL_HEIGHT+MARGIN,STAT_LABEL_WIDTH,LABEL_HEIGHT);
         statsPanel.add(speedLabel);
 
         pokemonDescriptionPanel.add(imgContainer);
         pokemonDescriptionPanel.add(pokemonNameLabel);
         pokemonDescriptionPanel.add(statsPanel);
-
-        pokemonDescriptionPanel.setSize(new Dimension(220,400));
-        pokemonDescriptionPanel.setBounds(540,50,220,400);
-        pokemonDescriptionPanel.setBackground(Color.white);
 
         window.add(pokemonDescriptionPanel);
 
@@ -289,42 +351,7 @@ public class PokedexClientGUI {
             }
         });
 
-        JPanel panel = new JPanel(null);
-        panel.setBackground(Color.decode("#beaed4"));
 
-        searchField = new JTextField(); // Pole tekstowe dla nazwy Pokemona
-        searchField.setSize(new Dimension(480,20));
-        searchField.setBounds(10,0,480,20);
-        searchField.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(searchTypeCombo.getSelectedItem() == "Nazwa"){
-                    searchPokemonByName();
-                }else if(searchTypeCombo.getSelectedItem() == "Typ"){
-                    searchPokemonByType();
-                }
-
-            }
-        });
-
-        String[] searchOptions = new String[] {"Nazwa", "Typ"};
-        searchTypeCombo = new JComboBox<>(searchOptions);
-        searchTypeCombo.setSize(new Dimension(100,20));
-        searchTypeCombo.setBounds(500,0,100,20);
-        searchTypeCombo.setEditable(false);
-        searchTypeCombo.setSelectedIndex(0);
-
-        JButton searchButton = new JButton("Szukaj"); // Przycisk "Szukaj"
-        searchButton.setSize(new Dimension(80,20));
-        searchButton.setBounds(610,0,80,20);
-
-        panel.add(searchField);
-        panel.add(searchTypeCombo);
-        panel.add(searchButton);
-
-        panel.setSize(new Dimension(700,20));
-        panel.setBounds(50,20,700,20);
-        window.add(panel);
 
         searchButton.addActionListener(new ActionListener() {
             @Override
@@ -480,7 +507,7 @@ public class PokedexClientGUI {
                 try {
                     URL imageUrl = new URL(pokemon.getPokeImageSrc());
                     pokemonMini = ImageIO.read(imageUrl);
-                    Image image = pokemonMini.getScaledInstance(120, 120, Image.SCALE_SMOOTH);
+                    Image image = pokemonMini.getScaledInstance(IMAGE_SIZE, IMAGE_SIZE, Image.SCALE_SMOOTH);
                     pokemonImageLabel.setIcon(new ImageIcon(image));
                     pokemonNameLabel.setText(pokemon.getName());
                     imgContainer.setBackground(Color.decode(pokemon.getTypes().get(0).getLabel()));
@@ -502,19 +529,23 @@ public class PokedexClientGUI {
             label2.setVisible(false);
             label1.setBackground(Color.decode(pokemon.getTypes().get(0).getLabel()));
             label1.setText(pokemon.getTypes().get(0).name());
-            label1.setBounds(80,155,60,20);
+            label1.setBounds(
+                    (int) (POKEMON_PANEL_WIDTH*0.5-TYPE_LABEL_WIDTH*0.5),
+                    pokemonNameLabel.getY()+pokemonNameLabel.getHeight() + MARGIN,
+                    TYPE_LABEL_WIDTH,
+                    LABEL_HEIGHT);
             pokemonDescriptionPanel.add(label1);
             label1.setVisible(true);
 
         } else if (pokemon.getTypes().size() == 2) {
             label1.setBackground(Color.decode(pokemon.getTypes().get(0).getLabel()));
             label1.setText(pokemon.getTypes().get(0).name());
-            label1.setBounds(30,155,60,20);
+            label1.setBounds(30,pokemonNameLabel.getY()+pokemonNameLabel.getHeight() + MARGIN,TYPE_LABEL_WIDTH,LABEL_HEIGHT);
             pokemonDescriptionPanel.add(label1);
             label2.setVisible(true);
             label2.setBackground(Color.decode(pokemon.getTypes().get(1).getLabel()));
             label2.setText(pokemon.getTypes().get(1).name());
-            label2.setBounds(130,155,60,20);
+            label2.setBounds(POKEMON_PANEL_WIDTH -TYPE_LABEL_WIDTH - 30,pokemonNameLabel.getY()+pokemonNameLabel.getHeight() + MARGIN,TYPE_LABEL_WIDTH,LABEL_HEIGHT);
             pokemonDescriptionPanel.add(label2);
             label2.setVisible(true);
         }
@@ -523,22 +554,22 @@ public class PokedexClientGUI {
     private void showStats(Pokemon pokemon){
         statsPanel.setVisible(true);
 
-        hpLabel.setFillWidth((int) (pokemon.getHp() * ((double) pokemon.getHp() /160)));
+        hpLabel.setFillWidth((int) (STAT_LABEL_WIDTH * ((double) pokemon.getHp() /160)));
         hpLabel.setText(pokemon.getHp().toString() + "/ 160");
 
-        attackLabel.setFillWidth((int) (pokemon.getAttack() * ((double) pokemon.getAttack() /160)));
+        attackLabel.setFillWidth((int) (STAT_LABEL_WIDTH* ((double) pokemon.getAttack() /160)));
         attackLabel.setText(pokemon.getAttack().toString() + "/ 160");
 
-        defenseLabel.setFillWidth((int) (pokemon.getDefense() * ((double) pokemon.getDefense() /160)));
+        defenseLabel.setFillWidth((int) (STAT_LABEL_WIDTH * ((double) pokemon.getDefense() /160)));
         defenseLabel.setText(pokemon.getDefense().toString() + "/ 160");
 
-        spAtkLabel.setFillWidth((int) (pokemon.getSpecialAttack() * ((double) pokemon.getSpecialAttack() /160)));
+        spAtkLabel.setFillWidth((int) (STAT_LABEL_WIDTH * ((double) pokemon.getSpecialAttack() /160)));
         spAtkLabel.setText(pokemon.getSpecialAttack().toString() + "/ 160");
 
-        spDefLabel.setFillWidth((int) (pokemon.getSpecialDefense() * ((double) pokemon.getSpecialDefense() /160)));
+        spDefLabel.setFillWidth((int) (STAT_LABEL_WIDTH * ((double) pokemon.getSpecialDefense() /160)));
         spDefLabel.setText(pokemon.getSpecialDefense().toString() + "/ 160");
 
-        speedLabel.setFillWidth((int) (pokemon.getSpeed() * ((double) pokemon.getSpeed() /160)));
+        speedLabel.setFillWidth((int) (STAT_LABEL_WIDTH * ((double) pokemon.getSpeed() /STAT_LABEL_WIDTH)));
         speedLabel.setText(pokemon.getSpeed().toString() + "/ 160");
     }
 
