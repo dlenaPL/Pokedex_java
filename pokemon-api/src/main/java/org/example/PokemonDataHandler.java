@@ -1,17 +1,11 @@
 package org.example;
 
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class PokemonDataHandler {
 
@@ -20,16 +14,13 @@ public class PokemonDataHandler {
 
     public PokemonDataHandler(String jsonFilePath) {
         this.jsonFilePath = jsonFilePath;
-        System.out.println("-----------------datahandler constructor");
         loadData();
     }
 
     public void loadData() {
         Gson gson = new Gson();
-        System.out.println("-----------loading data in data handler");
         try {
             FileReader reader = new FileReader(jsonFilePath);
-                // Użycie TypeToken do obsługi listy typu Person
             Type pokemonListType = new TypeToken<List<Pokemon>>(){}.getType();
             pokemons = gson.fromJson(reader, pokemonListType);
             System.out.println("Ilosc pokemonow wczytana z pliku: " + pokemons.size());
@@ -39,7 +30,6 @@ public class PokemonDataHandler {
     }
 
     public List<Pokemon> getAllPokemons() {
-        System.out.println("getAllPokemons Command from DataHandler");
         return pokemons;
     }
 
@@ -62,6 +52,7 @@ public class PokemonDataHandler {
             type = PokemonType.fromName(typeName);
             System.out.println("type z funkcji: " + type);
         } catch (IllegalArgumentException e) {
+            System.out.println("Nie znaleziono Pokemonów o typie: " + typeName);
             return null;
         }
 
@@ -76,9 +67,5 @@ public class PokemonDataHandler {
         return matchingPokemons;
     }
 
-
-
-
-//koniec klasy
 }
 

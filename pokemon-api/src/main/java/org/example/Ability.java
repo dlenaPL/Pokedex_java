@@ -1,13 +1,32 @@
 package org.example;
 
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
-@Data
-@RequiredArgsConstructor
+
 public class Ability {
+    private String name;
+    private Integer requiredLevel;
 
-    private final String name;
+    public Ability(String name, Integer requiredLevel) {
+        this.name = name;
+        this.requiredLevel = requiredLevel;
+    }
 
-    private final Integer requiredLevel;
+    public Ability() {
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Integer getRequiredLevel() {
+        return requiredLevel;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setRequiredLevel(Integer requiredLevel) {
+        this.requiredLevel = requiredLevel;
+    }
 }

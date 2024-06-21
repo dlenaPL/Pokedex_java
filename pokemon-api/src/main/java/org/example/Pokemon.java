@@ -1,12 +1,8 @@
 package org.example;
 
-import lombok.Data;
-
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.List;
 
-@Data
+
 public class Pokemon {
 
         private String name;

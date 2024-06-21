@@ -25,35 +25,29 @@ public class PokedexClientHandler implements Runnable {
         try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
              PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)) {
 
-            // Odbieranie wiadomości powitalnej od klienta
             String initialMessage = in.readLine();
             if (initialMessage != null && initialMessage.equals("HELLO_SERVER")) {
                 out.println("Witaj, kliencie! Połączenie zostało nawiązane.");
             } else {
                 out.println("Niepoprawna wiadomość powitalna. Oczekiwano: HELLO_SERVER");
-                return; // Zakończenie obsługi klienta w przypadku błędnej wiadomości powitalnej
+                return;
             }
 
             String request;
             while ((request = in.readLine()) != null) {
-                System.out.println("Komenda od klienta: " + request);
 
-                // Obsługa komendy GET_ALL
                 if (request.equalsIgnoreCase("GET_ALL")) {
                     handleGetAll(out);
 
                 } else if (request.startsWith("SEARCH_TYPE_NAME")) {
                     handleSearchByTypeName(request, out);
 
-                    // Obsługa komendy SEARCH <name>
                 } else if (request.startsWith("SEARCH")) {
                     handleSearchByName(request, out);
 
-                    // Obsługa komendy EXIT
                 } else if (request.startsWith("EXIT")) {
                     break;
 
-                    // Obsługa nieznanej komendy
                 } else {
                     out.println("Nieznana komenda: " + request);
                 }
@@ -74,17 +68,15 @@ public class PokedexClientHandler implements Runnable {
         }
     }
 
-    // Metoda do obsługi komendy GET_ALL
     public void handleGetAll(PrintWriter out) {
-        Gson gson = new Gson(); // Użyj prostszego Gson bez ustawiania pretty printing
+        Gson gson = new Gson();
         String json = "get_all:" + gson.toJson(dataHandler.getAllPokemons());
-        System.out.println("------------------pokedex client handler handle get all");
         out.println(json);
     }
 
 
     public void handleSearchByName(String request, PrintWriter out) {
-        String[] tokens = request.split("\\s+", 2); // Dzieli komendę na części
+        String[] tokens = request.split("\\s+", 2);
         Gson gson = new Gson();
         if (tokens.length == 2) {
             String nameFragment = tokens[1].trim();

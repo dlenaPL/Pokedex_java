@@ -426,7 +426,7 @@ public class PokedexClientGUI {
             if(pokemons != null){
                 updatePokemonTable(pokemons);
             }else {
-                responseArea.append("Pokemon not found or doesn't exist");
+                responseArea.append("Pokemon not found or doesn't exist\n");
             }
 
         }
@@ -438,7 +438,7 @@ public class PokedexClientGUI {
             if(pokemons != null){
                 updatePokemonTable(pokemons);
             }else {
-                responseArea.append("Pokemon not found or doesn't exist");
+                responseArea.append("Pokemon not found or doesn't exist\n");
             }
         }
 
@@ -450,7 +450,7 @@ public class PokedexClientGUI {
             if(pokemons != null){
                 updatePokemonTable(pokemons);
             } else {
-                responseArea.append("Pokemon not found or doesn't exist");
+                responseArea.append("Pokemon not found or doesn't exist\n");
             }
         }
     }
@@ -482,7 +482,7 @@ public class PokedexClientGUI {
                     pokemonMini = ImageIO.read(imageUrl);
                     Image image = pokemonMini.getScaledInstance(120, 120, Image.SCALE_SMOOTH);
                     pokemonImageLabel.setIcon(new ImageIcon(image));
-                    pokemonNameLabel.setText(pokemon.getName());  // Usuń tekst, jeśli istnieje
+                    pokemonNameLabel.setText(pokemon.getName());
                     imgContainer.setBackground(Color.decode(pokemon.getTypes().get(0).getLabel()));
 
                     displayPokemonTypeLabel(pokemon, typeLabelA, typeLabelB);
@@ -561,7 +561,7 @@ public class PokedexClientGUI {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            PokedexClientGUI gui = new PokedexClientGUI("localhost", 9090); // Ustaw adres i port serwera
+            PokedexClientGUI gui = new PokedexClientGUI("localhost", 9090);
             gui.createAndShowGUI();
         });
     }

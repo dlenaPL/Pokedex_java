@@ -10,7 +10,6 @@ public class PokemonServer {
 
     public static void main(String[] args) {
         PokemonDataHandler dataHandler = new PokemonDataHandler("pokemons.json");
-        System.out.println("-----------------------data handler ustalony");
         ServerSocket serverSocket = null;
         try {
             serverSocket = new ServerSocket(SERVER_PORT);

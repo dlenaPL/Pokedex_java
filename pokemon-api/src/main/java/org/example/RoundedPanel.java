@@ -20,10 +20,8 @@ public class RoundedPanel extends JPanel {
         int height = getHeight();
         Graphics2D graphics = (Graphics2D) g;
 
-        // Antyaliasing dla lepszej jakości renderowania
         graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        // Rysowanie zaokrąglonego panelu
         graphics.setColor(getBackground());
         graphics.fillRoundRect(0, 0, width, height, arcs.width, arcs.height);
 
