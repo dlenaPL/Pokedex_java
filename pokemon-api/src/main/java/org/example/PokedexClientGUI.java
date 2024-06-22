@@ -39,9 +39,9 @@ public class PokedexClientGUI {
 
     private JPanel searchPanel;
     private JComboBox<String> searchTypeCombo;
-    private JLabel pokemonImageLabel;  // Pole do przechowywania etykiety obrazu
-    private List<Pokemon> currentPokemonList = new ArrayList<>(); // Lista do przechowywania aktualnych Pokemonów
-    private JTextField searchField; // Pole tekstowe dla nazwy Pokemona
+    private JLabel pokemonImageLabel;
+    private List<Pokemon> currentPokemonList = new ArrayList<>();
+    private JTextField searchField;
     private JPanel imgContainer = new RoundedPanel(15);
     private JLabel pokemonNameLabel;
     private RoundedPanel pokemonDescriptionPanel;
@@ -127,7 +127,7 @@ public class PokedexClientGUI {
         System.out.println("search panel: " + SEARCH_PANEL_WIDTH);
         searchPanel.setBounds((int) (0.5*WINDOW_WIDTH - 0.5*SEARCH_PANEL_WIDTH),statusLabel.getY()+statusLabel.getHeight()+MARGIN,SEARCH_PANEL_WIDTH,LABEL_HEIGHT);
 
-        searchField = new JTextField(); // Pole tekstowe dla nazwy Pokemona
+        searchField = new JTextField();
         searchField.setSize(new Dimension(480,20));
         searchField.setBounds(10,0,480,20);
         searchField.addActionListener(new ActionListener() {
@@ -148,7 +148,7 @@ public class PokedexClientGUI {
         searchTypeCombo.setEditable(false);
         searchTypeCombo.setSelectedIndex(0);
 
-        JButton searchButton = new JButton("Szukaj"); // Przycisk "Szukaj"
+        JButton searchButton = new JButton("Szukaj");
         searchButton.setSize(new Dimension(80,20));
         searchButton.setBounds(610,0,80,20);
 
@@ -484,8 +484,8 @@ public class PokedexClientGUI {
 
     private void updatePokemonTable(List<Pokemon> pokemons) {
         SwingUtilities.invokeLater(() -> {
-            tableModel.setRowCount(0); // Wyczyść istniejące wiersze
-            currentPokemonList = pokemons; // Aktualizuj bieżącą listę Pokemonów
+            tableModel.setRowCount(0);
+            currentPokemonList = pokemons;
             for (Pokemon pokemon : pokemons) {
                 tableModel.addRow(new Object[]{
                         pokemon.getName(),

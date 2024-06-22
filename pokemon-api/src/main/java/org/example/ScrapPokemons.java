@@ -101,10 +101,8 @@ public class ScrapPokemons {
         Gson gson = new Gson();
 
         try {
-            // Konwersja ArrayListy na JSON w postaci Stringa
             String json = gson.toJson(pokemons);
 
-            // Zapis JSONa do pliku
             FileWriter fileWriter = new FileWriter("pokemons.json");
             fileWriter.write(json);
             fileWriter.close();

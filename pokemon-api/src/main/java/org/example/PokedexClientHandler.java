@@ -90,7 +90,7 @@ public class PokedexClientHandler implements Runnable {
 
     public void handleSearchByTypeName(String request, PrintWriter out) {
 
-        String[] tokens = request.split("\\s+", 2); // Dzieli komendę na części
+        String[] tokens = request.split("\\s+", 2);
         Gson gson = new Gson();
         if (tokens.length == 2) {
             String typeName = tokens[1].trim();
@@ -101,9 +101,4 @@ public class PokedexClientHandler implements Runnable {
         }
     }
 
-
-
-
-
-    //koniec klasy
 }
